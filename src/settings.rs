@@ -24,7 +24,8 @@ impl From<u8> for Arm7Emu {
 pub enum ScreenMode {
     Regular,
     Rotated,
-    Resized
+    Resized,
+    Focused
 }
 
 impl From<u8> for ScreenMode {
