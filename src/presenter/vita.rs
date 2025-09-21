@@ -192,7 +192,16 @@ impl Presenter {
 
                 if !in_swap_zone || screenmode != ScreenMode::Resized {
                     match screenmode {
-                        ScreenMode::Regular | ScreenMode::Resized | ScreenMode::XlMiddle | ScreenMode::XlLeft => {
+                        ScreenMode::Rotated => {
+                            let rect = PRESENTER_SUB_ROTATED_BOTTOM_SCREEN;
+                            if rect.is_within(x, y) {
+                                let (x, y) = rect.normalize(x, y);
+                                let screen_x = (DISPLAY_WIDTH as u32 - (DISPLAY_WIDTH as u32 * y / rect.height)) as u8;
+                                let screen_y = (DISPLAY_HEIGHT as u32 * x / rect.width) as u8;
+                                touch = Some((screen_x, screen_y));
+                            }
+                        }
+                        _ => {
                             let rect = if screenmode == ScreenMode::Regular { 
                                 PRESENTER_SUB_BOTTOM_SCREEN
                             } else if screenmode == ScreenMode::Resized {
@@ -216,15 +225,6 @@ impl Presenter {
                                 let (x, y) = rect.normalize(x, y);
                                 let screen_x = (DISPLAY_WIDTH as u32 * x / rect.width) as u8;
                                 let screen_y = (DISPLAY_HEIGHT as u32 * y / rect.height) as u8;
-                                touch = Some((screen_x, screen_y));
-                            }
-                        }
-                        ScreenMode::Rotated => {
-                            let rect = PRESENTER_SUB_ROTATED_BOTTOM_SCREEN;
-                            if rect.is_within(x, y) {
-                                let (x, y) = rect.normalize(x, y);
-                                let screen_x = (DISPLAY_WIDTH as u32 - (DISPLAY_WIDTH as u32 * y / rect.height)) as u8;
-                                let screen_y = (DISPLAY_HEIGHT as u32 * x / rect.width) as u8;
                                 touch = Some((screen_x, screen_y));
                             }
                         }
