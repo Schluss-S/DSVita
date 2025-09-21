@@ -195,21 +195,41 @@ impl GpuRenderer {
                     ScreenMode::Rotated => (DISPLAY_HEIGHT, DISPLAY_WIDTH),
                 };
 
-                self.renderer_2d
-                    .render::<{ A }>(&self.common, self.renderer_3d.gl.fbo.color, screen_topology.mode == ScreenMode::Rotated);
-                blit_fb(
-                    used_fbo,
-                    if self.common.pow_cnt1[0].display_swap() { &screen_topology.top } else { &screen_topology.bottom },
-                    src_coords.0,
-                    src_coords.1,
-                );
-                self.renderer_2d.render::<{ B }>(&self.common, 0, screen_topology.mode == ScreenMode::Rotated);
-                blit_fb(
-                    used_fbo,
-                    if self.common.pow_cnt1[0].display_swap() { &screen_topology.bottom } else { &screen_topology.top },
-                    src_coords.0,
-                    src_coords.1,
-                );
+                let display_swap = self.common.pow_cnt1[0].display_swap() ^ ((screen_topology.mode == ScreenMode::XlMiddle || screen_topology.mode == ScreenMode::XlLeft) && (!swap_sizes));
+
+                if display_swap {
+                    self.renderer_2d.render::<{ B }>(&self.common, 0, screen_topology.mode == ScreenMode::Rotated);
+                    blit_fb(
+                        used_fbo,
+                        &screen_topology.bottom,
+                        src_coords.0,
+                        src_coords.1,
+                    );
+                    self.renderer_2d
+                        .render::<{ A }>(&self.common, self.renderer_3d.gl.fbo.color, screen_topology.mode == ScreenMode::Rotated);
+                    blit_fb(
+                        used_fbo,
+                        &screen_topology.top,
+                        src_coords.0,
+                        src_coords.1,
+                    );
+                } else {
+                    self.renderer_2d
+                        .render::<{ A }>(&self.common, self.renderer_3d.gl.fbo.color, screen_topology.mode == ScreenMode::Rotated);
+                    blit_fb(
+                        used_fbo,
+                        &screen_topology.bottom,
+                        src_coords.0,
+                        src_coords.1,
+                    );
+                    self.renderer_2d.render::<{ B }>(&self.common, 0, screen_topology.mode == ScreenMode::Rotated);
+                    blit_fb(
+                        used_fbo,
+                        &screen_topology.top,
+                        src_coords.0,
+                        src_coords.1,
+                    );
+                }
             }
 
             gl::BindFramebuffer(gl::FRAMEBUFFER, 0);
@@ -240,8 +260,8 @@ impl GpuRenderer {
             let arm7_emu: &str = settings.arm7_hle().into();
             self.gl_glyph.draw(format!("{}ms {arm7_emu}\n{per}% ({fps}fps)\n{info_text}", self.average_render_time));
             
-            // Draw a UI element to represent the touch-region to swap screen sizes in resized screen mode
-            if settings.screenmode() == ScreenMode::Resized
+            // Draw a UI element to represent the touch-region to swap screen sizes in some screen modes
+            if settings.screenmode() == ScreenMode::Resized || settings.screenmode() == ScreenMode::XlMiddle || settings.screenmode() == ScreenMode::XlLeft
             {
                 let swap_zone_x = (PRESENTER_SCREEN_WIDTH - SWAP_ZONE_WIDTH - 4) as f32;
                 let swap_zone_y = 5 as f32;

@@ -190,7 +190,8 @@ impl Presenter {
                 raw_touch = Some((x as u16, y as u16));
                 let in_swap_zone = x >= PRESENTER_SCREEN_WIDTH - SWAP_ZONE_WIDTH && y < SWAP_ZONE_HEIGHT;
 
-                if !in_swap_zone || screenmode != ScreenMode::Resized {
+                // Let clicks go through swap zone in regular and rotated screen modes
+                if !in_swap_zone || (screenmode == ScreenMode::Regular || screenmode == ScreenMode::Rotated) {
                     match screenmode {
                         ScreenMode::Rotated => {
                             let rect = PRESENTER_SUB_ROTATED_BOTTOM_SCREEN;

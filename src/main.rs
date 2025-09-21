@@ -498,7 +498,7 @@ pub fn actual_main() {
         }
         key_map.store(keymap, Ordering::Relaxed);
 
-        if settings.screenmode() == ScreenMode::Resized {
+        if settings.screenmode() == ScreenMode::Resized || settings.screenmode() == ScreenMode::XlMiddle || settings.screenmode() == ScreenMode::XlLeft {
             handle_touch_swap(&mut swap_sizes, raw_touch, &mut prev_swap_touch);
         }
 
