@@ -16,6 +16,7 @@ use crate::presenter::platform::imgui::{
 use crate::presenter::{
     PresentEvent, PRESENTER_AUDIO_BUF_SIZE, PRESENTER_AUDIO_SAMPLE_RATE, PRESENTER_SCREEN_HEIGHT, PRESENTER_SCREEN_WIDTH,
     PRESENTER_SUB_BOTTOM_SCREEN, PRESENTER_SUB_RESIZED_BOTTOM_SCREEN, PRESENTER_SUB_RESIZED_INV_BOTTOM_SCREEN, PRESENTER_SUB_ROTATED_BOTTOM_SCREEN,
+    PRESENTER_SUB_XLMODE_LEFT_BOTTOM_SCREEN, PRESENTER_SUB_XLMODE_MIDDLE_BOTTOM_SCREEN, PRESENTER_SUB_XLMODE_TOP_SCREEN,
     SWAP_ZONE_WIDTH, SWAP_ZONE_HEIGHT
 };
 use crate::settings::{Arm7Emu, ScreenMode, SettingValue, Settings, SettingsConfig};
@@ -191,13 +192,25 @@ impl Presenter {
 
                 if !in_swap_zone || screenmode != ScreenMode::Resized {
                     match screenmode {
-                        ScreenMode::Regular | ScreenMode::Resized  => {
+                        ScreenMode::Regular | ScreenMode::Resized | ScreenMode::XlMiddle | ScreenMode::XlLeft => {
                             let rect = if screenmode == ScreenMode::Regular { 
                                 PRESENTER_SUB_BOTTOM_SCREEN
-                            } else if swap_sizes {
-                                PRESENTER_SUB_RESIZED_BOTTOM_SCREEN 
+                            } else if screenmode == ScreenMode::Resized {
+                                if swap_sizes {
+                                    PRESENTER_SUB_RESIZED_BOTTOM_SCREEN
+                                } else {
+                                    PRESENTER_SUB_RESIZED_INV_BOTTOM_SCREEN
+                                }
                             } else {
-                                PRESENTER_SUB_RESIZED_INV_BOTTOM_SCREEN
+                                if swap_sizes {
+                                    if screenmode == ScreenMode::XlMiddle {
+                                        PRESENTER_SUB_XLMODE_MIDDLE_BOTTOM_SCREEN
+                                    } else {
+                                        PRESENTER_SUB_XLMODE_LEFT_BOTTOM_SCREEN
+                                    }
+                                } else {
+                                    PRESENTER_SUB_XLMODE_TOP_SCREEN
+                                }
                             };
                             if rect.is_within(x, y) {
                                 let (x, y) = rect.normalize(x, y);

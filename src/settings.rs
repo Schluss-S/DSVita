@@ -25,6 +25,8 @@ pub enum ScreenMode {
     Regular,
     Rotated,
     Resized,
+    XlMiddle,
+    XlLeft
 }
 
 impl From<u8> for ScreenMode {
@@ -46,7 +48,7 @@ impl SettingValue {
         *self = match self {
             SettingValue::Bool(value) => SettingValue::Bool(!*value),
             SettingValue::Arm7Emu(value) => SettingValue::Arm7Emu(Arm7Emu::from((value.clone() as u8 + 1) % (Arm7Emu::Hle as u8 + 1))),
-            SettingValue::ScreenMode(value) => SettingValue::ScreenMode(ScreenMode::from((value.clone() as u8 + 1) % (ScreenMode::Resized as u8 + 1))),
+            SettingValue::ScreenMode(value) => SettingValue::ScreenMode(ScreenMode::from((value.clone() as u8 + 1) % (ScreenMode::XlLeft as u8 + 1))),
         }
     }
 
